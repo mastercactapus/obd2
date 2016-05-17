@@ -253,18 +253,18 @@ func DecodeO2Present(v byte) O2Present {
 
 // O2STFT is the oxygen sensor short term fuel trim stats
 type O2STFT struct {
-	// FuelAirEquiv represents the Fuel-Air Equivalence Ratio
-	FuelAirEquiv float64
+	// STFT represents the short-term fuel trim as a percentage of rich or lean (-1 to 1, respectively)
+	STFT float64
 
 	// Voltage is the voltage measured
 	Voltage float64
 }
 
-// DecodeO2STFT will decode the response for a PIDO2STFTx request
+// DecodeO2STFT will decode the response for a PIDO2STFTx request. res must be 2 bytes
 func DecodeO2STFT(res []byte) O2STFT {
 	var o O2STFT
-	o.FuelAirEquiv = 2 * (256*float64(res[0]) + float64(res[1])) / 65536
-	o.Voltage = 8 * (256*float64(res[2]) + float64(res[3])) / 65536
+	o.Voltage = float64(res[0]) / 200
+	o.STFT = 100*float64(res[1])/128 - 100
 	return o
 }
 
