@@ -1,11 +1,5 @@
 package obd2
 
-import (
-	"bufio"
-	"errors"
-	"io"
-)
-
 type Request struct {
 	Mode byte
 	Args []byte

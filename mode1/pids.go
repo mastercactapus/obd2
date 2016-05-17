@@ -13,7 +13,7 @@ const (
 	// PIDFreeze will freeze DTC values
 	PIDFreeze byte = 0x02
 
-	// PIDFuelSystemStatus will request the loop status of the fuel system(s). Response should be two bytes, one for each possible fuel system. The values can be matched against FuelSystemStatus
+	// PIDFuelSystemStatus will request the loop status of the fuel system(s). Response should be two bytes, one for each possible fuel system. The values can be matched against FuelSystemStatus values
 	PIDFuelSystemStatus byte = 0x03
 
 	// PIDEngineLoad will request the calculated engine load. Use with DecodeEngineLoad
@@ -49,18 +49,54 @@ const (
 	// PIDTimingAdvance is the timing advance of the engine. Use with DecodeTimingAdvance
 	PIDTimingAdvance byte = 0x0e
 
-	// PIDIAT is the temperature of the air (at intake)
+	// PIDIAT is the temperature of the air (at intake). Use with DecodeIAT
 	PIDIAT byte = 0x0f
 
-	// PIDMAFRate is the rate of air flow through the Mass Air Flow sensor
+	// PIDMAFRate is the rate of air flow through the Mass Air Flow sensor. Use with DecodeMAFRate
 	PIDMAFRate byte = 0x10
 
-	// PIDThrottlePos gives the current position of the throttle
+	// PIDThrottlePos gives the current position of the throttle. Use with DecodeThrottlePos
 	PIDThrottlePos byte = 0x11
 
-	// PIDComAirStatus gives the commanded secondary air status
+	// PIDComAirStatus gives the commanded secondary air status. Can be matched against SecondaryAirStatus values
 	PIDComAirStatus byte = 0x12
 
-	// Mode1O2Present will determine what O2 sensors are present
-	Mode1O2Present byte = 0x13
+	// PIDO2Present will determine what O2 sensors are present. Use with DecodeO2Present
+	PIDO2Present byte = 0x13
+
+	// PIDO2STFT1 requests the short term fuel trim and voltage for oxygen sensor 1. Use with DecodeO2STFT
+	PIDO2STFT1 byte = 0x14
+
+	// PIDO2STFT2 requests the short term fuel trim and voltage for oxygen sensor 2. Use with DecodeO2STFT
+	PIDO2STFT2 byte = 0x15
+
+	// PIDO2STFT3 requests the short term fuel trim and voltage for oxygen sensor 3. Use with DecodeO2STFT
+	PIDO2STFT3 byte = 0x16
+
+	// PIDO2STFT4 requests the short term fuel trim and voltage for oxygen sensor 4. Use with DecodeO2STFT
+	PIDO2STFT4 byte = 0x17
+
+	// PIDO2STFT5 requests the short term fuel trim and voltage for oxygen sensor 5. Use with DecodeO2STFT
+	PIDO2STFT5 byte = 0x18
+
+	// PIDO2STFT6 requests the short term fuel trim and voltage for oxygen sensor 6. Use with DecodeO2STFT
+	PIDO2STFT6 byte = 0x19
+
+	// PIDO2STFT7 requests the short term fuel trim and voltage for oxygen sensor 7. Use with DecodeO2STFT
+	PIDO2STFT7 byte = 0x1a
+
+	// PIDO2STFT8 requests the short term fuel trim and voltage for oxygen sensor 8. Use with DecodeO2STFT
+	PIDO2STFT8 byte = 0x1b
+
+	// PIDOBDStandard requests what OBD (onboard diagnostic) standards the vehicle conforms to
+	PIDOBDStandard byte = 0x1c
+
+	// PIDO2PresentExt will determine what O2 sensors are present. This is an extended version for up to 4 banks. Use with DecodeO2Present for each byte (1 byte = 2 banks)
+	PIDO2PresentExt byte = 0x1d
+
+	// PIDAuxInput will request the auxilliary input status. Use with DecodeAuxInput
+	PIDAuxInput byte = 0x1e
+
+	// PIDRunTime will request the run time since engine start in seconds. Use with DecodeRunTime
+	PIDRunTime byte = 0x1f
 )

@@ -1,5 +1,10 @@
 package mode1
 
+import (
+	"encoding/binary"
+	"time"
+)
+
 // FuelSystemStatus is the status returned for the fuel system
 type FuelSystemStatus byte
 
@@ -18,6 +23,23 @@ const (
 
 	// FuelSystemStatusClosedFault means running in closed loop (at least 1 O2 sensor) but there is a fault in the feedback system
 	FuelSystemStatusClosedFault FuelSystemStatus = 16
+)
+
+// ComAirStatus is the status returned for the secondary air system
+type ComAirStatus byte
+
+const (
+	// ComAirStatusUpstream means secondary air is on from upstream
+	ComAirStatusUpstream ComAirStatus = 1
+
+	// ComAirStatusDownstream means secondary air is on, downstream of catalytic converter
+	ComAirStatusDownstream ComAirStatus = 2
+
+	// ComAirStatusOff means secondary air is off, or coming from the outside atmosphere
+	ComAirStatusOff ComAirStatus = 4
+
+	// ComAirStatusDiag means the secondary air pump has been commanded on for diagnostics
+	ComAirStatusDiag ComAirStatus = 8
 )
 
 // MonitorStatusSpark contains monitoring status for spark-ignition engines
@@ -171,12 +193,12 @@ func IsSupported(res []byte, pid byte) bool {
 
 // DecodeFuelTrim will return the fuel trim value as a percentage of rich or lean (-1 to 1, respectively)
 func DecodeFuelTrim(v byte) float64 {
-	return float64(v)/128.0 - 100.0
+	return float64(v)/128 - 100
 }
 
 // DecodeEngineLoad will decode the engine load as a percentage (between 0 and 1)
 func DecodeEngineLoad(v byte) float64 {
-	return float64(v) / 255.0
+	return float64(v) / 255
 }
 
 // DecodeECT will convert the response for PIDECT to degrees Celsius
@@ -186,25 +208,80 @@ func DecodeECT(v byte) int {
 
 // DecodeEngineRPM will convert the response to RPM (rotations per minute). res must be at least 2 bytes
 func DecodeEngineRPM(res []byte) float64 {
-	return (float64(res[0])*256.0 + float64(res[1])) / 4.0
+	return (float64(res[0])*256 + float64(res[1])) / 4
 }
 
 // DecodeTimingAdvance will convert the response to degrees before TDC (top dead center)
 func DecodeTimingAdvance(v byte) float64 {
-	return float64(v)/2.0 - 64.0
+	return float64(v)/2 - 64
 }
 
-//DecodeIntakeAirTemp will convert the response for PIDIAT to degrees Celsius
-func DecodeIntakeAirTemp(v byte) int {
+// DecodeIAT will convert the response for PIDIAT to degrees Celsius
+func DecodeIAT(v byte) int {
 	return int(v) - 40
 }
 
 // DecodeMAFRate will convert the response to grams/sec. res must be at least 2 bytes
 func DecodeMAFRate(res []byte) float64 {
-	return (float64(res[0])*256.0 + float64(res[1])) / 100.0
+	return (float64(res[0])*256 + float64(res[1])) / 100
 }
 
 // DecodeThrottlePos will decode the throttle position as a percentage (between 0 and 1)
 func DecodeThrottlePos(v byte) float64 {
-	return float64(v) / 255.0
+	return float64(v) / 255
+}
+
+// O2Present is the decoded result of the O2Present command
+type O2Present struct {
+	Bank1 [4]bool
+	Bank2 [4]bool
+}
+
+// DecodeO2Present will decode what oxygen sensors are present. Must have 2 or 4 bytes
+func DecodeO2Present(v byte) O2Present {
+	var p O2Present
+	p.Bank1[0] = v&1 == 1
+	p.Bank1[1] = v&(1<<1) == 1
+	p.Bank1[2] = v&(1<<2) == 1
+	p.Bank1[3] = v&(1<<3) == 1
+	p.Bank2[0] = v&(1<<4) == 1
+	p.Bank2[1] = v&(1<<5) == 1
+	p.Bank2[2] = v&(1<<6) == 1
+	p.Bank2[3] = v&(1<<7) == 1
+	return p
+}
+
+// O2STFT is the oxygen sensor short term fuel trim stats
+type O2STFT struct {
+	// FuelAirEquiv represents the Fuel-Air Equivalence Ratio
+	FuelAirEquiv float64
+
+	// Voltage is the voltage measured
+	Voltage float64
+}
+
+// DecodeO2STFT will decode the response for a PIDO2STFTx request
+func DecodeO2STFT(res []byte) O2STFT {
+	var o O2STFT
+	o.FuelAirEquiv = 2 * (256*float64(res[0]) + float64(res[1])) / 65536
+	o.Voltage = 8 * (256*float64(res[2]) + float64(res[3])) / 65536
+	return o
+}
+
+// AuxInputStatus represents auxilliary input status
+type AuxInputStatus struct {
+	// PTO represents the PTO (Power Take Off) status, if true PTO is active
+	PTO bool
+}
+
+// DecodeAuxInput will decode the response to PIDAuxInput
+func DecodeAuxInput(v byte) AuxInputStatus {
+	var s AuxInputStatus
+	s.PTO = v&1 == 1
+	return s
+}
+
+// DecodeRunTime will decode engine runtime from a response. res must be 2 bytes
+func DecodeRunTime(res []byte) time.Duration {
+	return time.Duration(binary.BigEndian.Uint16(res))
 }
