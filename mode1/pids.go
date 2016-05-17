@@ -88,7 +88,7 @@ const (
 	// PIDO2STFT8 requests the short term fuel trim and voltage for oxygen sensor 8. Use with DecodeO2STFT
 	PIDO2STFT8 byte = 0x1b
 
-	// PIDOBDStandard requests what OBD (onboard diagnostic) standards the vehicle conforms to
+	// PIDOBDStandard requests what OBD (onboard diagnostic) standards the vehicle conforms to. Can be matched against OBDStandard values
 	PIDOBDStandard byte = 0x1c
 
 	// PIDO2PresentExt will determine what O2 sensors are present. This is an extended version for up to 4 banks. Use with DecodeO2Present for each byte (1 byte = 2 banks)
